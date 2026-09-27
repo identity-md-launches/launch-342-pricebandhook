@@ -1,0 +1,26 @@
+{
+  "kind": "univ4_hook",
+  "hook": {
+    "contract": "PriceBandHook",
+    "constructorArgs": [
+      "0xE03A1074c86CFeDd5C142C4F04F1a1536e203543"
+    ],
+    "permissions": [
+      "afterInitialize",
+      "afterSwap"
+    ]
+  },
+  "token": {
+    "contract": "Band",
+    "name": "Band",
+    "symbol": "BAND",
+    "decimals": 18
+  },
+  "pool": {
+    "pairedCurrency": "0x0000000000000000000000000000000000000000",
+    "fee": 3000,
+    "tickSpacing": 60,
+    "initialPrice": "79228162514264337593543950336"
+  },
+  "notes": "Technical description of src/PriceBandHook.sol:PriceBandHook and src/Band.sol:Band for the approved Sepolia native-ETH/BAND pool. The hook constructor's sole argument is the workflow-specified Sepolia PoolManager; Band has no constructor arguments. ABI documentation is in docs/abi/PriceBandHook.json and docs/abi/Band.json. Currency0 is native ETH and currency1 is BAND. initialPrice is decimal sqrtPriceX96 = 2^96, tick 0, or 1 BAND per ETH (both currencies use 18 decimals). The approved brief does not specify an opening price; this value records the deterministic opening price exercised in test/LaunchRehearsal.t.sol. That rehearsal seeds BAND alone below the opening price, then buys into the ETH-less pool and sells. This price selection requires independent manifest review before deployment. The only enabled permissions are afterInitialize and afterSwap (address permission mask 0x1040); all return-delta permissions are disabled. The hook charges no fee and returns zero swap delta. State is independent per PoolId, and any pool may attach the hook. Initialization records the tick and timestamp. The band is inactive until the first UTC hour boundary after initialization. Each swap first accrues the preceding tick over elapsed seconds. The last completed hour's average tick A rounds toward negative infinity; the initialization hour covers only time since initialization, and idle gaps are handled in constant work. The inclusive band is [A - 2231, A + 1823]. A swap is accepted when its final tick is inside the band or strictly closer to it than the previous tick; otherwise PriceOutOfBand reverts the swap. band(PoolId) previews the next swap's band at the current timestamp, lastTick(PoolId) reports the last observed tick, and HourClosed reports only the latest hour closed by a successful swap. hookData is unauthenticated and ignored. Policy and signed artifact linkage are owned by services. Source publication, attestation, admission and deployment follow this contract stage; these notes claim none of those outcomes."
+}
